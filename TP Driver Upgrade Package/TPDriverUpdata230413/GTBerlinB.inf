@@ -1,0 +1,87 @@
+;
+; GTBerlinB.inf
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=HIDClass 
+ClassGuid={745a17a0-74d3-11d0-b6fe-00a0c90f57da} 
+Provider=%ManufacturerName%
+CatalogFile=GTBerlinB.cat
+DriverVer = 04/12/2023,14.13.1.426
+PnpLockdown=1
+
+[DestinationDirs]
+DefaultDestDir = 12
+GTBerlinB_Device_CoInstaller_CopyFiles = 11
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+GTBerlinB.sys  = 1,,
+;
+
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName%=Standard,NTARM64
+
+[Standard.NTARM64]
+%GTBerlinB.DeviceDesc%=GTBerlinB_Device, ACPI\GXTS7986
+
+[GTBerlinB_Device.NT]
+CopyFiles=Drivers_Dir
+
+[Drivers_Dir]
+GTBerlinB.sys
+
+;-------------- Service installation
+[GTBerlinB_Device.NT.Services]
+AddService = GTBerlinB,%SPSVCINST_ASSOCSERVICE%, GTBerlinB_Service_Inst
+
+; -------------- GTBerlinB driver install sections
+[GTBerlinB_Service_Inst]
+DisplayName    = %GTBerlinB.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\GTBerlinB.sys
+
+[GTBerlinB_Device.NT.HW]
+AddReg = GTBerlinB_Reg_Parameters.AddReg 
+
+[GTBerlinB_Reg_Parameters.AddReg]
+HKR,,"UpperFilters",0x00010000,"mshidkmdf"
+HKR,,"EnhancedPowerManagementEnabled",0x00010001,1
+
+;
+;--- GTBerlinB_Device Coinstaller installation ------
+;
+
+[GTBerlinB_Device.NT.CoInstallers]
+AddReg=GTBerlinB_Device_CoInstaller_AddReg
+CopyFiles=GTBerlinB_Device_CoInstaller_CopyFiles
+
+[GTBerlinB_Device_CoInstaller_AddReg]
+;
+
+
+[GTBerlinB_Device_CoInstaller_CopyFiles]
+;
+
+
+[GTBerlinB_Device.NT.Wdf]
+KmdfService =  GTBerlinB, GTBerlinB_wdfsect
+[GTBerlinB_wdfsect]
+KmdfLibraryVersion = 1.15
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+ManufacturerName="Shenzhen Huiding Technology Co.,Ltd." ;TODO: Replace with your manufacturer name
+DiskName = "GTBerlinB Installation Disk"
+GTBerlinB.DeviceDesc = "GTBerlinB Device"
+GTBerlinB.SVCDESC = "GTBerlinB Service"
